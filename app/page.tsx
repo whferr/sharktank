@@ -1,20 +1,38 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SignInButton, useAuth, UserButton } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
 export default function Home() {
   const router = useRouter();
+  const { isSignedIn, isLoaded } = useAuth();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const navigateToSharkSelection = () => {
     router.push('/sharks');
   };
 
+  // Don't render auth-dependent content until mounted and Clerk is loaded
+  const showContent = mounted && isLoaded;
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-8">
       <div className="max-w-6xl w-full">
+        {/* Header with User Button */}
+        <div className="absolute top-8 right-8">
+          {showContent && isSignedIn && (
+            <UserButton afterSignOutUrl="/" />
+          )}
+        </div>
+
         {/* Hero Section */}
         <div className="text-center space-y-12 mb-24">
           <div className="flex justify-center mb-12">
@@ -37,19 +55,51 @@ export default function Home() {
             </p>
           </div>
           
-          <button
-            onClick={navigateToSharkSelection}
-            className={cn(
-              "inline-flex items-center gap-3 bg-black text-white",
-              "font-medium text-base px-10 py-4 rounded-full",
-              "transition-all duration-300",
-              "hover:bg-gray-900 hover:gap-4",
-              "font-inter mt-8"
+          <div className="mt-8">
+            {!showContent ? (
+              <button
+                disabled
+                className={cn(
+                  "inline-flex items-center gap-3 bg-black text-white",
+                  "font-medium text-base px-10 py-4 rounded-full",
+                  "opacity-50 cursor-wait",
+                  "font-inter"
+                )}
+              >
+                Enter the fish tank
+                <ArrowRight className="w-8 h-6" />
+              </button>
+            ) : isSignedIn ? (
+              <button
+                onClick={navigateToSharkSelection}
+                className={cn(
+                  "inline-flex items-center gap-3 bg-black text-white",
+                  "font-medium text-base px-10 py-4 rounded-full",
+                  "transition-all duration-300",
+                  "hover:bg-gray-900 hover:gap-4",
+                  "font-inter"
+                )}
+              >
+                Enter the fish tank
+                <ArrowRight className="w-8 h-6" />
+              </button>
+            ) : (
+              <SignInButton mode="modal">
+                <button
+                  className={cn(
+                    "inline-flex items-center gap-3 bg-black text-white",
+                    "font-medium text-base px-10 py-4 rounded-full",
+                    "transition-all duration-300",
+                    "hover:bg-gray-900 hover:gap-4",
+                    "font-inter"
+                  )}
+                >
+                  Enter the fish tank
+                  <ArrowRight className="w-8 h-6" />
+                </button>
+              </SignInButton>
             )}
-          >
-            Enter the fish tank
-            <ArrowRight className="w-8 h-6" />
-          </button>
+          </div>
         </div>
 
         {/* Sharks Image */}
@@ -72,12 +122,22 @@ export default function Home() {
           <button className="text-gray-500 hover:text-black font-inter text-sm transition-colors">
             Use Cases
           </button>
-          <button 
-            onClick={navigateToSharkSelection}
-            className="text-gray-500 hover:text-black font-inter text-sm transition-colors"
-          >
-            Login
-          </button>
+          {showContent && (
+            isSignedIn ? (
+              <button 
+                onClick={navigateToSharkSelection}
+                className="text-gray-500 hover:text-black font-inter text-sm transition-colors"
+              >
+                Go to Sharks
+              </button>
+            ) : (
+              <SignInButton mode="modal">
+                <button className="text-gray-500 hover:text-black font-inter text-sm transition-colors">
+                  Login
+                </button>
+              </SignInButton>
+            )
+          )}
         </div>
       </div>
     </div>

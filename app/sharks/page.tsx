@@ -2,9 +2,10 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import { LogOut, ChevronRight } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
+import { UserButton } from '@clerk/nextjs';
 
 // Shark Tank investors
 const sharks = [
@@ -62,10 +63,6 @@ export default function SharksPage() {
     router.push(`/chat/${sharkId}`);
   };
 
-  const handleLogout = () => {
-    router.push('/');
-  };
-
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -89,17 +86,7 @@ export default function SharksPage() {
                 </p>
               </div>
             </div>
-            <button
-              onClick={handleLogout}
-              className={cn(
-                "inline-flex items-center gap-2",
-                "text-gray-500 hover:text-black",
-                "transition-colors font-inter text-sm"
-              )}
-            >
-              <LogOut className="w-4 h-4" />
-              Sign Out
-            </button>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </div>

@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useRouter, useParams } from 'next/navigation';
 import { useConversation } from '@elevenlabs/react';
+import { UserButton } from '@clerk/nextjs';
 
 // Shark Tank investors
 const sharks = [
@@ -149,6 +150,11 @@ export default function ChatPage() {
         >
           ← Back
         </button>
+
+        {/* User button */}
+        <div className="absolute top-8 right-8">
+          <UserButton afterSignOutUrl="/" />
+        </div>
 
         {/* Main content */}
         <div className="flex flex-col items-center space-y-12">
