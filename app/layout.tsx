@@ -1,74 +1,15 @@
-import type { Metadata, Viewport } from 'next';
-import './globals.css';
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
 
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  themeColor: '#000000',
-};
+const inter = Inter({
+  variable: "--font-inter",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://yourdomain.com'),
-  title: {
-    default: 'Next.js 16 SEO Starter',
-    template: '%s | Next.js 16 SEO Starter',
-  },
-  description: 'A blazingly fast Next.js 16 starter with exceptional SEO practices built-in.',
-  applicationName: 'Next.js 16 SEO Starter',
-  keywords: ['Next.js', 'React', 'TypeScript', 'SEO', 'Web Development', 'App Router'],
-  authors: [{ name: 'Your Name', url: 'https://yourdomain.com' }],
-  creator: 'Your Name',
-  publisher: 'Your Company',
-  category: 'technology',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://yourdomain.com',
-    siteName: 'Next.js 16 SEO Starter',
-    title: 'Next.js 16 SEO Starter',
-    description: 'A blazingly fast Next.js 16 starter with exceptional SEO practices built-in.',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'Next.js 16 SEO Starter',
-      },
-    ],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Next.js 16 SEO Starter',
-    description: 'A blazingly fast Next.js 16 starter with exceptional SEO practices built-in.',
-    images: ['/og-image.png'],
-    creator: '@yourusername',
-    site: '@yourusername',
-  },
-  robots: {
-    index: true,
-    follow: true,
-    nocache: false,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
-  },
-  alternates: {
-    canonical: 'https://yourdomain.com',
-  },
-  verification: {
-    google: 'your-google-verification-code',
-    // yandex: 'your-yandex-verification-code',
-    // bing: 'your-bing-verification-code',
-  },
+  title: "Shark Tank - Pitch Your Idea",
+  description: "Practice your pitch with AI-powered Shark Tank investors",
 };
 
 export default function RootLayout({
@@ -78,8 +19,17 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>{children}</body>
+      <head>
+        <link
+          href="https://cdn.jsdelivr.net/npm/cal-sans@1.0.1/index.css"
+          rel="stylesheet"
+        />
+      </head>
+      <body
+        className={`${inter.variable} antialiased`}
+      >
+        {children}
+      </body>
     </html>
   );
 }
-
