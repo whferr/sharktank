@@ -16,7 +16,8 @@ const sharks = [
     specialty: 'Technology & Sports',
     image: '/sharks/mark.png',
     personality: 'Direct, tech-savvy, loves innovation',
-    description: 'Billionaire entrepreneur, owner of Dallas Mavericks'
+    description: 'Billionaire entrepreneur, owner of Dallas Mavericks',
+    enabled: true
   },
   {
     id: 2,
@@ -25,7 +26,8 @@ const sharks = [
     specialty: 'Real Estate & Consumer Products',
     image: '/sharks/barbara.png',
     personality: 'Empathetic, people-focused, great with consumer brands',
-    description: 'Built a $5B real estate empire from scratch'
+    description: 'Built a $5B real estate empire from scratch',
+    enabled: false
   },
   {
     id: 3,
@@ -34,7 +36,8 @@ const sharks = [
     specialty: 'Finance & Licensing',
     image: '/sharks/mr-wonderful.png',
     personality: 'Numbers-driven, brutal honesty, loves royalty deals',
-    description: 'Financial expert focused on profitability'
+    description: 'Financial expert focused on profitability',
+    enabled: false
   },
   {
     id: 4,
@@ -43,7 +46,8 @@ const sharks = [
     specialty: 'Retail & Product Innovation',
     image: '/sharks/laurie.png',
     personality: 'Product expert, retail genius, warm and encouraging',
-    description: 'Created over 800 products, 120+ patents'
+    description: 'Created over 800 products, 120+ patents',
+    enabled: false
   },
   {
     id: 5,
@@ -52,14 +56,17 @@ const sharks = [
     specialty: 'Technology & Software',
     image: '/sharks/robert.png',
     personality: 'Supportive, tech-focused, immigrant success story',
-    description: 'Built a cybersecurity empire, tech investor'
+    description: 'Built a cybersecurity empire, tech investor',
+    enabled: false
   }
 ];
 
 export default function SharksPage() {
   const router = useRouter();
+  const [hoveredShark, setHoveredShark] = useState<number | null>(null);
 
-  const handleSharkSelect = (sharkId: number) => {
+  const handleSharkSelect = (sharkId: number, enabled: boolean) => {
+    if (!enabled) return;
     router.push(`/chat/${sharkId}`);
   };
 
@@ -97,22 +104,43 @@ export default function SharksPage() {
           {sharks.map((shark) => (
             <div
               key={shark.id}
-              onClick={() => handleSharkSelect(shark.id)}
+              onClick={() => handleSharkSelect(shark.id, shark.enabled)}
+              onMouseEnter={() => setHoveredShark(shark.id)}
+              onMouseLeave={() => setHoveredShark(null)}
               className={cn(
-                "group relative cursor-pointer transition-all duration-300",
-                "hover:translate-y-[-8px]"
+                "group relative transition-all duration-300",
+                shark.enabled ? "cursor-pointer hover:translate-y-[-8px]" : "cursor-not-allowed opacity-60"
               )}
             >
-              <div className="flex flex-col items-center gap-4 p-6 bg-white border border-gray-200 rounded-2xl shadow-sm hover:shadow-xl hover:border-gray-300 transition-all duration-300 h-full">
+              {/* Tooltip for disabled sharks */}
+              {!shark.enabled && hoveredShark === shark.id && (
+                <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-black text-white px-4 py-2 rounded-lg text-xs font-inter whitespace-nowrap z-20 shadow-lg">
+                  Already in a Shark Tank Pitch
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
+                    <div className="border-4 border-transparent border-t-black"></div>
+                  </div>
+                </div>
+              )}
+
+              <div className={cn(
+                "flex flex-col items-center gap-4 p-6 bg-white border border-gray-200 rounded-2xl shadow-sm transition-all duration-300 h-full",
+                shark.enabled && "hover:shadow-xl hover:border-gray-300"
+              )}>
                 {/* Shark Image */}
                 {shark.image && (
-                  <div className="w-28 h-28 rounded-full overflow-hidden bg-gray-50 flex-shrink-0 ring-2 ring-gray-100 group-hover:ring-4 group-hover:ring-black/10 transition-all duration-300">
+                  <div className={cn(
+                    "w-28 h-28 rounded-full overflow-hidden bg-gray-50 flex-shrink-0 ring-2 ring-gray-100 transition-all duration-300",
+                    shark.enabled && "group-hover:ring-4 group-hover:ring-black/10"
+                  )}>
                     <Image
                       src={shark.image}
                       alt={shark.name}
                       width={112}
                       height={112}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105"
+                      className={cn(
+                        "w-full h-full object-cover transition-all duration-500",
+                        shark.enabled ? "grayscale group-hover:grayscale-0 group-hover:scale-105" : "grayscale"
+                      )}
                     />
                   </div>
                 )}
@@ -141,9 +169,15 @@ export default function SharksPage() {
                 </div>
 
                 {/* CTA */}
-                <div className="flex items-center gap-2 text-black pt-2 group-hover:gap-3 transition-all duration-300 w-full justify-center">
+                <div className={cn(
+                  "flex items-center gap-2 text-black pt-2 transition-all duration-300 w-full justify-center",
+                  shark.enabled && "group-hover:gap-3"
+                )}>
                   <span className="text-sm font-semibold font-inter">Start Pitching</span>
-                  <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                  <ChevronRight className={cn(
+                    "w-4 h-4 transition-transform duration-300",
+                    shark.enabled && "group-hover:translate-x-1"
+                  )} />
                 </div>
               </div>
             </div>
@@ -160,4 +194,5 @@ export default function SharksPage() {
     </div>
   );
 }
+
 
