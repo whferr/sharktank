@@ -64,6 +64,7 @@ export default function ChatPage() {
   const selectedShark = sharks.find(s => s.id === sharkId);
   const [loading, setLoading] = useState(true);
   const [isConnecting, setIsConnecting] = useState(false);
+  const [pitchMode, setPitchMode] = useState<'idle' | 'voice' | 'video'>('idle');
 
   // ElevenLabs Conversation Hook
   const conversation = useConversation({
@@ -79,7 +80,8 @@ export default function ChatPage() {
     },
     onError: (error) => {
       console.error('Conversation error:', error);
-      alert(`Error: ${error.message || 'Something went wrong'}`);
+      const errorMessage = typeof error === 'string' ? error : (error as Error).message || 'Something went wrong';
+      alert(`Error: ${errorMessage}`);
       setIsConnecting(false);
     },
     onModeChange: (mode) => {
@@ -99,11 +101,13 @@ export default function ChatPage() {
     if (conversation.status === 'connected') {
       await conversation.endSession();
     }
+    setPitchMode('idle');
     router.push('/sharks');
   };
 
-  const handleStartConversation = async () => {
+  const handleStartVoicePitch = async () => {
     setIsConnecting(true);
+    setPitchMode('voice');
     
     // Request microphone permission first
     try {
@@ -112,6 +116,7 @@ export default function ChatPage() {
       console.error('Microphone permission denied:', error);
       alert('Please allow microphone access to start the conversation.');
       setIsConnecting(false);
+      setPitchMode('idle');
       return;
     }
 
@@ -119,6 +124,7 @@ export default function ChatPage() {
       // Start the conversation with the ElevenLabs agent
       const sessionConfig = {
         agentId: 'agent_8801kc79f6x7fkba7s9yd6ga14ng',
+        connectionType: 'websocket' as const,
       };
       
       console.log('Starting session with config:', sessionConfig);
@@ -128,17 +134,54 @@ export default function ChatPage() {
       console.error('Failed to start conversation:', error);
       alert(`Failed to start conversation: ${error.message || 'Unknown error'}. Please try again.`);
       setIsConnecting(false);
+      setPitchMode('idle');
     }
   };
 
-  const handleEndConversation = async () => {
-    try {
-      await conversation.endSession();
-      console.log('Conversation ended');
-    } catch (error) {
-      console.error('Error ending conversation:', error);
-    }
+  const handleStartVideoPitch = () => {
+    setPitchMode('video');
   };
+
+  const handleEndPitch = async () => {
+    if (pitchMode === 'voice') {
+      try {
+        await conversation.endSession();
+        console.log('Conversation ended');
+      } catch (error) {
+        console.error('Error ending conversation:', error);
+      }
+    }
+    setPitchMode('idle');
+  };
+
+  // Video pitch mode - full screen iframe
+  if (pitchMode === 'video') {
+    return (
+      <div className="fixed inset-0 bg-black flex flex-col">
+        {/* Back button */}
+        <button
+          onClick={handleEndPitch}
+          className="absolute top-8 left-8 z-50 text-white hover:text-gray-300 transition-colors font-inter text-sm"
+        >
+          ← Back
+        </button>
+
+        {/* User button */}
+        <div className="absolute top-8 right-8 z-50">
+          <UserButton afterSignOutUrl="/" />
+        </div>
+
+        {/* Full screen iframe */}
+        <div className="flex-1 flex items-center justify-center">
+          <iframe
+            src="https://lab.anam.ai/frame/M9jkYA65cfHFDTVOC5Wdb"
+            className="w-full h-full"
+            allow="microphone"
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-8">
@@ -194,23 +237,52 @@ export default function ChatPage() {
             </p>
           </div>
 
-          {/* Start Button */}
-          <button
-            onClick={conversation.status === 'connected' ? handleEndConversation : handleStartConversation}
-            disabled={isConnecting}
-            className={cn(
-              "inline-flex items-center justify-center",
-              "font-medium text-base px-12 py-5 rounded-full",
-              "transition-all duration-300",
-              "font-inter shadow-lg disabled:opacity-50 disabled:cursor-not-allowed",
-              "min-w-[200px]",
-              conversation.status === 'connected' 
-                ? 'bg-red-500 text-white hover:bg-red-600' 
-                : 'bg-black text-white hover:bg-gray-800'
-            )}
-          >
-            {isConnecting ? 'Connecting...' : conversation.status === 'connected' ? 'End Pitch' : 'Start Pitch'}
-          </button>
+          {/* Pitch Buttons */}
+          {pitchMode === 'idle' ? (
+            <div className="flex gap-4">
+              <button
+                onClick={handleStartVoicePitch}
+                disabled={isConnecting}
+                className={cn(
+                  "inline-flex items-center justify-center",
+                  "font-medium text-base px-12 py-5 rounded-full",
+                  "transition-all duration-300",
+                  "font-inter shadow-lg disabled:opacity-50 disabled:cursor-not-allowed",
+                  "min-w-[200px]",
+                  "bg-black text-white hover:bg-gray-800"
+                )}
+              >
+                {isConnecting ? 'Connecting...' : 'Start Voice Pitch'}
+              </button>
+              <button
+                onClick={handleStartVideoPitch}
+                className={cn(
+                  "inline-flex items-center justify-center",
+                  "font-medium text-base px-12 py-5 rounded-full",
+                  "transition-all duration-300",
+                  "font-inter shadow-lg",
+                  "min-w-[200px]",
+                  "bg-black text-white hover:bg-gray-800"
+                )}
+              >
+                Start Video Pitch
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleEndPitch}
+              className={cn(
+                "inline-flex items-center justify-center",
+                "font-medium text-base px-12 py-5 rounded-full",
+                "transition-all duration-300",
+                "font-inter shadow-lg",
+                "min-w-[200px]",
+                "bg-red-500 text-white hover:bg-red-600"
+              )}
+            >
+              End Pitch
+            </button>
+          )}
         </div>
       </div>
     </div>

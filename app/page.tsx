@@ -116,29 +116,6 @@ export default function Home() {
             />
           </div>
         </div>
-
-        {/* Navigation Buttons */}
-        <div className="flex justify-center gap-12 mt-16">
-          <button className="text-gray-500 hover:text-black font-inter text-sm transition-colors">
-            Use Cases
-          </button>
-          {showContent && (
-            isSignedIn ? (
-              <button 
-                onClick={navigateToSharkSelection}
-                className="text-gray-500 hover:text-black font-inter text-sm transition-colors"
-              >
-                Go to Sharks
-              </button>
-            ) : (
-              <SignInButton mode="modal">
-                <button className="text-gray-500 hover:text-black font-inter text-sm transition-colors">
-                  Login
-                </button>
-              </SignInButton>
-            )
-          )}
-        </div>
       </div>
     </div>
   );
